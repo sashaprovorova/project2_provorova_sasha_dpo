@@ -22,6 +22,7 @@ packages = [
 
 [tool.poetry.scripts]
 project = "src.primitive_db.main:main"
+database = "src.primitive_db.main:main"
 [dependency-groups]
 dev = [
     "ruff (>=0.14.14,<0.15.0)"
