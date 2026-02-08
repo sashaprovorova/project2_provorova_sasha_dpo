@@ -20,10 +20,42 @@ exit
 
 ## Demo (asciinema)
 
-Запись терминальной сессии: `demo.cast`
+Демонстрация работы с базовыми командами управления таблицами.
 
-Просмотр локально:
+[![asciinema](https://asciinema.org/a/IfVpIfYf8Fr2FPZV.svg)](https://asciinema.org/a/IfVpIfYf8Fr2FPZV)
 
-```bash
-asciinema play demo.cast
+## CRUD-операции
+
+Команды:
+
+- `insert into <table> values (<v1>, <v2>, ...)` — добавить запись (ID генерируется автоматически).
+- `select from <table>` — вывести все записи.
+- `select from <table> where <column> = <value>` — вывести записи по условию.
+- `update <table> set <column> = <new_value> where <column> = <value>` — обновить записи по условию.
+- `delete from <table> where <column> = <value>` — удалить записи по условию.
+- `info <table>` — информация о таблице.
+- `help` — справка.
+- `exit` — выход.
+
+Пример:
+
+```text
+create_table users name:str age:int is_active:bool
+insert into users values ("Sergei", 28, true)
+select from users
+select from users where age = 28
+update users set age = 29 where name = "Sergei"
+delete from users where ID = 1
 ```
+
+## CRUD-операции
+
+Демонстрация работы с базой данных:
+
+- создание таблицы
+- добавление записей
+- выборка данных
+- обновление записей
+- удаление записей
+
+[![asciinema](https://asciinema.org/a/9imrD5Nvxc8jgIDh.svg)](https://asciinema.org/a/9imrD5Nvxc8jgIDh)
