@@ -11,6 +11,7 @@ from src.primitive_db.core import (
     select,
     update,
 )
+from src.primitive_db.decorators import create_cacher
 from src.primitive_db.parser import parse_set, parse_where
 from src.primitive_db.utils import (
     load_metadata,
@@ -18,6 +19,8 @@ from src.primitive_db.utils import (
     save_metadata,
     save_table_data,
 )
+
+select_cache = create_cacher()
 
 META_FILE = "db_meta.json"
 
@@ -88,7 +91,7 @@ def run():
                 continue
 
             save_metadata(META_FILE, metadata)
-
+            select_cache.clear()
             cols = metadata["tables"][table_name]["columns"]
             cols_str = ", ".join([f"{name}:{col_type}" for name, col_type in cols])
             print(f'Таблица "{table_name}" успешно создана со столбцами: {cols_str}')
@@ -107,6 +110,7 @@ def run():
                 continue
 
             save_metadata(META_FILE, metadata)
+            select_cache.clear()
             print(f'Таблица "{table_name}" успешно удалена.')
         elif command == "insert":
             if len(args) < 5 or args[1] != "into" or args[3] != "values":
@@ -148,6 +152,7 @@ def run():
                 continue
 
             save_table_data(table_name, table_data)
+            select_cache.clear()
             record_id = table_data[-1]["ID"]
             message = (
                 f'Запись с ID={record_id} успешно добавлена в таблицу "{table_name}".'
@@ -179,7 +184,17 @@ def run():
                     print(f"Функции {command} нет. Попробуйте снова.")
                     continue
 
-            result = select(table_data, where_clause)
+            where_key = (
+                tuple(sorted(where_clause.items()))
+                if where_clause
+                else None
+            )
+            cache_key = (table_name, where_key)
+
+            result = select_cache(
+                cache_key,
+                lambda: select(table_data, where_clause),
+            )
 
             schema = metadata["tables"][table_name]["columns"]
             headers = [name for name, _column_type in schema]
@@ -235,7 +250,9 @@ def run():
                             or (right.startswith("'") and right.endswith("'"))
                         )
                         is_bool = low in {"true", "false"}
-                        is_int = right.isdigit() or (right.startswith("-") and right[1:].isdigit())
+                        
+                        is_negative_int = right.startswith("-") and right[1:].isdigit()
+                        is_int = right.isdigit() or is_negative_int
 
                         if not (is_quoted or is_bool or is_int):
                             where_text = f'{left.strip()} = "{right}"'
@@ -250,7 +267,7 @@ def run():
             table_data = load_table_data(table_name)
             table_data = update(table_data, set_clause, where_clause)
             save_table_data(table_name, table_data)
-
+            select_cache.clear()
             updated_rows = select(table_data, where_clause)
             if updated_rows:
                 record_id = updated_rows[0]["ID"]
@@ -284,6 +301,7 @@ def run():
             to_delete = select(table_data, where_clause)
             table_data = delete(table_data, where_clause)
             save_table_data(table_name, table_data)
+            select_cache.clear()
 
             if to_delete:
                 record_id = to_delete[0]["ID"]

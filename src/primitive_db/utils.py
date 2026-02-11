@@ -17,7 +17,8 @@ def load_table_data(table_name):
     filepath = Path("data") / f"{table_name}.json"
     try:
         with open(filepath, "r", encoding="utf-8") as file:
-            return json.load(file)
+            data =  json.load(file)
+            return data if isinstance(data, list) else []
     except FileNotFoundError:
         return []
     except json.JSONDecodeError:

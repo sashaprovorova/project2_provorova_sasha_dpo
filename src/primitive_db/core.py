@@ -1,5 +1,8 @@
+from src.primitive_db.decorators import confirm_action, handle_db_errors, log_time
+
 ALLOWED_TYPES = {"int", "str", "bool"}
 
+@handle_db_errors
 def create_table(metadata, table_name, columns): 
   """ Создает новую таблицу и сохраняет ее структуру в метаданных """
 
@@ -33,6 +36,8 @@ def create_table(metadata, table_name, columns):
 
   return metadata
 
+@confirm_action("удаление таблицы")
+@handle_db_errors
 def drop_table(metadata, table_name):
     """ Удаляет таблицу из метаданных """
     
@@ -42,6 +47,8 @@ def drop_table(metadata, table_name):
     del metadata["tables"][table_name]
     return metadata
 
+@handle_db_errors
+@log_time
 def insert(metadata, table_name, table_data, values):
   """ Добавляет запись и возвращает обновлённые данные таблицы """
     
@@ -97,6 +104,8 @@ def insert(metadata, table_name, table_data, values):
   return table_data
 
 
+@handle_db_errors
+@log_time
 def select(table_data, where_clause=None):
   """ Возвращает все записи или записи по условию. """
   if where_clause is None:
@@ -108,7 +117,7 @@ def select(table_data, where_clause=None):
   key, val = next(iter(where_clause.items()))
   return [row for row in table_data if row.get(key) == val]
 
-
+@handle_db_errors
 def update(table_data, set_clause, where_clause):
   """ Обновляет записи по условию и возвращает обновлённые данные """
   if not set_clause or len(set_clause) != 1:
@@ -125,6 +134,8 @@ def update(table_data, set_clause, where_clause):
 
   return table_data
 
+@confirm_action("удаление записей")
+@handle_db_errors
 def delete(table_data, where_clause):
   """ Удаляет записи по условию и возвращает обновлённые данные """
   if not where_clause or len(where_clause) != 1:
