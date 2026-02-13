@@ -65,7 +65,7 @@ delete from users where ID = 1
 - обновление записей
 - удаление записей
 
-[![asciinema](https://asciinema.org/a/9imrD5Nvxc8jgIDh.svg)](https://asciinema.org/a/9imrD5Nvxc8jgIDh)
+[![asciinema](https://asciinema.org/a/9imrD5Nvxc8jgIDh.png)](https://asciinema.org/a/9imrD5Nvxc8jgIDh)
 
 ## Дополнительные возможности
 
